@@ -119,11 +119,14 @@ class DataProcessor:
         
         # Split data into training and validation sets (last 30 days for validation)
         cutoff_date = prophet_df['ds'].max() - pd.Timedelta(days=30)
-        train_df = prophet_df[prophet_df['ds'] <= cutoff_date]
-        val_df = prophet_df[prophet_df['ds'] > cutoff_date]
+        
+        # Remove weekends from both training and validation sets
+        train_df = prophet_df[(prophet_df['ds'] <= cutoff_date) & 
+                            (prophet_df['ds'].dt.dayofweek < 5)]  # 0-4 are Monday-Friday
+        val_df = prophet_df[(prophet_df['ds'] > cutoff_date) & 
+                          (prophet_df['ds'].dt.dayofweek < 5)]
         
         # Set floor and carrying capacity
         train_df['cap'] = train_df['y'].max() * 1.5  # Upper bound
         train_df['floor'] = 0  # Lower bound to prevent negative values
-        
         return train_df, val_df 
