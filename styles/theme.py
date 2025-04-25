@@ -112,7 +112,13 @@ STYLES = """
         .logo-container {
             display: flex;
             justify-content: center;
-            margin-bottom: 20px;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            background-color: #FFFFFF;
+            border-bottom: 3px solid var(--secondary-color);
+            width: 100%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         /* ===== Selectbox (dropdown) styling ===== */

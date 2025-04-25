@@ -333,14 +333,14 @@ class Dashboard:
     
     def run(self):
         """Run the dashboard"""
+        # Display header first to ensure logo appears at the top
+        self.display_header()
+        
         # Load data
         df = self.data_processor.load_data()
         if df is None:
             st.error("Error loading data. Please check the data file.")
             return
-        
-        # Display header
-        self.display_header()
         
         # Display dashboard content
         self.display_dashboard(df)
