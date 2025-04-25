@@ -15,17 +15,13 @@ class Forecaster:
             weekly_seasonality=True,
             daily_seasonality=True,
             seasonality_mode='multiplicative',
-            changepoint_prior_scale=0.01,  # Reduce flexibility to prevent overfitting
-            seasonality_prior_scale=10.0,  # Increase impact of seasonality
+            changepoint_prior_scale=0.05,  # Increased from 0.01 to allow more flexibility
+            seasonality_prior_scale=1.0,   # Reduced from 10.0 to prevent overfitting
             holidays=self.holiday_df,
-            growth='logistic'
+            growth='linear'                # Changed from logistic to linear for less constraint
         )
         
-        # Set floor and carrying capacity
-        train_df['cap'] = train_df['y'].max() * 1.5  # Upper bound
-        train_df['floor'] = 0  # Lower bound to prevent negative values
-        
-        # Fit the model
+        # Fit the model without floor and cap constraints
         self.model.fit(train_df)
         
         return self.model
@@ -34,8 +30,6 @@ class Forecaster:
         """Make future predictions"""
         # Make future predictions including validation period
         future_dates = self.model.make_future_dataframe(periods=forecast_period)
-        future_dates['cap'] = train_df['y'].max() * 1.5  # Set capacity for future dates
-        future_dates['floor'] = 0  # Set floor for future dates
         
         self.forecast = self.model.predict(future_dates)
         

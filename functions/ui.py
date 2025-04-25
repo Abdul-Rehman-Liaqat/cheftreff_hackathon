@@ -36,9 +36,9 @@ def display_header():
         st.markdown('</div>', unsafe_allow_html=True)
     else:
         # Fallback to text logo if image can't be loaded
-        st.markdown('<div class="main-title">Otto Dörner Data Analysis</div>', unsafe_allow_html=True)
-    
-    st.markdown('<div class="subtitle">Waste Management & Resource Planning</div>', unsafe_allow_html=True)
+        # st.markdown('<div class="main-title">Otto Dörner Data Analysis</div>', unsafe_allow_html=True)
+        pass    
+    # st.markdown('<div class="subtitle">Waste Management & Resource Planning</div>', unsafe_allow_html=True)
 
 def display_footer():
     """Display the footer"""

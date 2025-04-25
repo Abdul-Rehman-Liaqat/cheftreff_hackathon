@@ -104,17 +104,18 @@ class DataProcessor:
         date_range = pd.date_range(start='2021-01-04', end='2025-03-31', freq='D')
         
         # Group by delivery date and get counts
-        daily_counts = df_morning.groupby('delivery_date').count()[['delivery_year']].reset_index()
+        import streamlit as st        
+        daily_counts = df_morning.groupby('delivery_date').containers_delivered.sum().reset_index()
         
         # Create a DataFrame with all dates and merge with counts
         prophet_df = pd.DataFrame({'ds': date_range})
-        prophet_df = prophet_df.merge(daily_counts[['delivery_date', 'delivery_year']], 
+        prophet_df = prophet_df.merge(daily_counts[['delivery_date', 'containers_delivered']], 
                                     left_on='ds', 
                                     right_on='delivery_date', 
                                     how='left')
         
         # Fill missing values with 0 and clean up columns
-        prophet_df['y'] = prophet_df['delivery_year'].fillna(0)
+        prophet_df['y'] = prophet_df['containers_delivered'].fillna(0)
         prophet_df = prophet_df[['ds', 'y']]  # Keep only required Prophet columns
         
         # Split data into training and validation sets (last 30 days for validation)
@@ -129,4 +130,5 @@ class DataProcessor:
         # Set floor and carrying capacity
         train_df['cap'] = train_df['y'].max() * 1.5  # Upper bound
         train_df['floor'] = 0  # Lower bound to prevent negative values
+        
         return train_df, val_df 
