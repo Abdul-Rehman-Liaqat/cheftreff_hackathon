@@ -185,7 +185,7 @@ class Dashboard:
                 if not future_forecast.empty:
                     # Get first forecasted data point after validation
                     first_forecast_date = future_forecast['ds'].min()
-                    containers_forecast = int(future_forecast[future_forecast['ds'] == first_forecast_date]['yhat'].values[0])
+                    containers_forecast = round(future_forecast[future_forecast['ds'] == first_forecast_date]['yhat'].values[0])
                     forecast_date_str = first_forecast_date.strftime('%Y-%m-%d')
                     st.metric("Containers Needed Next Day", f"{containers_forecast}")
                     # st.markdown(f'<div style="font-size: 0.8rem; color: #888;">Forecast for {forecast_date_str}</div>', unsafe_allow_html=True)
@@ -281,20 +281,28 @@ class Dashboard:
             # Ensure weekly seasonality has some value (at least 1% effect)
             if abs(weekly) < 0.01 * trend:
                 weekly = 0.01 * trend if trend > 0 else 1
-                
+            
             # Calculate day of week effect
             day_of_week = forecast_date.day_name()
-            
-            st.markdown(f"""
+            yhat_rounded = round(yhat)
+            holidays_effect_rounded = round(holidays_effect)
+            weekly_rounded = round(weekly)
+            yearly_rounded = round(yearly)
+            trend_correction = yhat_rounded - (holidays_effect_rounded + weekly_rounded + yearly_rounded)
+            markdown_text = f"""
             For **{forecast_date.strftime('%Y-%m-%d')}** ({day_of_week}), we expect **{containers_forecast} containers** based on:
             
-            - **Regular demand**: {round(trend)} containers
-            - **{day_of_week} effect**: {'+' if weekly >= 0 else ''}{round(weekly)} containers 
-            - **Seasonal demand**: {'+' if yearly >= 0 else ''}{round(yearly)} containers
-            - **Holiday impact**: {'+' if holidays_effect >= 0 else ''}{round(holidays_effect)} containers
+            - **Regular demand**: {round(trend_correction)} containers
+            - **{day_of_week} effect**: {'+' if weekly_rounded >= 0 else ''}{round(weekly_rounded)} containers 
+            - **Seasonal demand**: {'+' if yearly_rounded >= 0 else ''}{round(yearly_rounded)} containers
+            - **Holiday impact**: {'+' if holidays_effect_rounded >= 0 else ''}{round(holidays_effect_rounded)} containers
             
-            This means you'll need **{trucks_needed} trucks**. The {day_of_week} effect shows that deliveries are typically {'higher' if weekly > 0 else 'lower'} on this day of the week.
-            """)
+            This means you'll need **{trucks_needed} trucks**. 
+            """
+            if weekly_rounded > 0:
+                markdown_text += f"The {day_of_week} effect shows that deliveries are typically {'higher' if weekly_rounded > 0 else 'lower'} on this day of the week."
+            st.markdown(markdown_text)
+            
         else:
             st.markdown("""
             The forecast considers:
